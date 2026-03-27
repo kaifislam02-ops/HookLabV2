@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hook Lab — AI Hook Generator for Creators</title>
+  <meta name="description" content="Generate 5 scroll-stopping hooks for any content topic in seconds. Free AI tool for YouTube, Instagram, LinkedIn and Twitter creators."/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f0e8;
+      --ink: #1a1208;
+      --muted: #9a9080;
+      --accent: #ff3d00;
+      --accent2: #ffb300;
+      --surface: #ffffff;
+      --border: #e0d8cc;
+      --shadow: 4px 4px 0px #1a1208;
+      --shadow-sm: 2px 2px 0px #1a1208;
+    }
+
+    body {
+      background: var(--bg); color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle, #c8bfb0 1px, transparent 1px);
+      background-size: 24px 24px; opacity: 0.45;
+      pointer-events: none; z-index: 0;
+    }
+
+    .wrapper { position: relative; z-index: 1; }
+
+    /* ── NAV ── */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 2rem; border-bottom: 2px solid var(--ink);
+      background: var(--bg); position: sticky; top: 0; z-index: 100;
+      flex-wrap: wrap; gap: 1rem;
+    }
+
+    .nav-logo {
+      background: var(--accent); color: white;
+      font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem;
+      letter-spacing: 0.1em; padding: 0.3rem 0.9rem;
+      border: 2px solid var(--ink); box-shadow: var(--shadow-sm);
+      text-decoration: none;
+    }
+
+    .nav-links { display: flex; gap: 1rem; align-items: center; }
+
+    .nav-link {
+      font-size: 0.85rem; font-weight: 600; color: var(--muted);
+      text-decoration: none; transition: color 0.15s;
+    }
+    .nav-link:hover { color: var(--ink); }
+
+    .nav-cta {
+      background: var(--ink); color: var(--bg);
+      font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 700;
+      padding: 0.5rem 1.25rem; text-decoration: none;
+      border: 2px solid var(--ink); box-shadow: var(--shadow-sm);
+      transition: all 0.12s;
+    }
+    .nav-cta:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--ink); }
+
+    /* ── HERO ── */
+    .hero {
+      max-width: 900px; margin: 0 auto;
+      padding: 5rem 2rem 4rem;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 3rem; align-items: center;
+    }
+
+    @media (max-width: 700px) {
+      .hero { grid-template-columns: 1fr; padding: 3rem 1.5rem; }
+    }
+
+    .hero-left {}
+
+    .hero-badge {
+      display: inline-block;
+      background: var(--accent2); color: var(--ink);
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 0.3rem 0.75rem;
+      border: 2px solid var(--ink); margin-bottom: 1.25rem;
+    }
+
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3.5rem, 8vw, 6rem);
+      line-height: 0.9; letter-spacing: 0.01em;
+      color: var(--ink); margin-bottom: 1.25rem;
+    }
+
+    h1 span { color: var(--accent); }
+
+    .hero-sub {
+      font-size: 1.05rem; color: var(--muted);
+      line-height: 1.65; margin-bottom: 2rem; max-width: 420px;
+    }
+
+    .hero-btns { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+    .btn-primary {
+      background: var(--accent); color: white;
+      font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem;
+      letter-spacing: 0.08em; padding: 0.75rem 2rem;
+      border: 2px solid var(--ink); box-shadow: var(--shadow);
+      text-decoration: none; transition: all 0.12s; display: inline-block;
+    }
+    .btn-primary:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink); }
+
+    .btn-secondary {
+      background: transparent; color: var(--ink);
+      font-size: 0.9rem; font-weight: 700;
+      padding: 0.75rem 1.5rem;
+      border: 2px solid var(--ink);
+      text-decoration: none; transition: all 0.12s; display: inline-block;
+    }
+    .btn-secondary:hover { background: var(--ink); color: var(--bg); }
+
+    /* Hero right — mock hook card */
+    .hero-right {
+      display: flex; flex-direction: column; gap: 0.75rem;
+    }
+
+    .mock-card {
+      background: var(--surface); border: 2px solid var(--ink);
+      box-shadow: var(--shadow); padding: 1rem 1.1rem;
+      animation: fadeUp 0.5s ease both;
+    }
+    .mock-card:nth-child(2) { animation-delay: 0.1s; }
+    .mock-card:nth-child(3) { animation-delay: 0.2s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .mock-tag {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: white;
+      padding: 0.2rem 0.5rem; display: inline-block; margin-bottom: 0.5rem;
+    }
+    .mock-tag.shock    { background: #e74c3c; }
+    .mock-tag.question { background: #2980b9; }
+    .mock-tag.story    { background: #8e44ad; }
+
+    .mock-text { font-size: 0.88rem; font-weight: 500; color: var(--ink); line-height: 1.5; }
+
+    /* ── LOGOS / SOCIAL PROOF ── */
+    .proof {
+      border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink);
+      padding: 1.25rem 2rem; background: var(--ink); color: var(--bg);
+      text-align: center;
+    }
+
+    .proof p {
+      font-size: 0.82rem; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; opacity: 0.7;
+    }
+
+    .platforms {
+      display: flex; justify-content: center; gap: 2.5rem;
+      margin-top: 0.75rem; flex-wrap: wrap;
+    }
+
+    .platform-item {
+      font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem;
+      letter-spacing: 0.08em; opacity: 0.85;
+    }
+
+    /* ── FEATURES ── */
+    .features {
+      max-width: 900px; margin: 0 auto;
+      padding: 5rem 2rem;
+    }
+
+    .section-label {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      line-height: 0.95; color: var(--ink); margin-bottom: 3rem;
+    }
+
+    .section-title span { color: var(--accent); }
+
+    .features-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .feature-card {
+      background: var(--surface); border: 2px solid var(--ink);
+      box-shadow: var(--shadow); padding: 1.5rem;
+    }
+
+    .feature-icon { font-size: 1.8rem; margin-bottom: 0.75rem; display: block; }
+    .feature-title { font-size: 1.05rem; font-weight: 700; color: var(--ink); margin-bottom: 0.4rem; }
+    .feature-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── HOW IT WORKS ── */
+    .how {
+      background: var(--ink); color: var(--bg);
+      padding: 5rem 2rem;
+    }
+
+    .how-inner { max-width: 900px; margin: 0 auto; }
+
+    .how .section-label { color: rgba(255,255,255,0.4); }
+    .how .section-title { color: var(--bg); }
+    .how .section-title span { color: var(--accent2); }
+
+    .steps {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem; counter-reset: steps;
+    }
+
+    .step {
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 1.5rem; border-radius: 2px; position: relative;
+      counter-increment: steps;
+    }
+
+    .step::before {
+      content: counter(steps, decimal-leading-zero);
+      font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem;
+      color: var(--accent2); opacity: 0.5; line-height: 1;
+      display: block; margin-bottom: 0.75rem;
+    }
+
+    .step-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .step-desc { font-size: 0.83rem; color: rgba(255,255,255,0.55); line-height: 1.6; }
+
+    /* ── HOOK TYPES ── */
+    .hooks-section {
+      max-width: 900px; margin: 0 auto; padding: 5rem 2rem;
+    }
+
+    .hooks-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .hook-type-card {
+      border: 2px solid var(--ink); padding: 1.25rem;
+      background: var(--surface); box-shadow: var(--shadow-sm);
+    }
+
+    .hook-type-tag {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: white;
+      padding: 0.2rem 0.5rem; display: inline-block; margin-bottom: 0.6rem;
+    }
+
+    .hook-type-name { font-size: 1rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .hook-type-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── CTA ── */
+    .cta-section {
+      background: var(--accent); border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink);
+      padding: 5rem 2rem; text-align: center;
+    }
+
+    .cta-section h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 7vw, 5rem);
+      color: white; line-height: 0.95; margin-bottom: 1.25rem;
+    }
+
+    .cta-section p {
+      font-size: 1rem; color: rgba(255,255,255,0.85);
+      margin-bottom: 2rem; max-width: 420px; margin-left: auto; margin-right: auto; line-height: 1.6;
+    }
+
+    .btn-white {
+      background: white; color: var(--ink);
+      font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem;
+      letter-spacing: 0.08em; padding: 0.85rem 2.5rem;
+      border: 2px solid var(--ink); box-shadow: var(--shadow);
+      text-decoration: none; display: inline-block; transition: all 0.12s;
+    }
+    .btn-white:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 2px solid var(--ink);
+      padding: 1.5rem 2rem;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+      background: var(--bg);
+    }
+
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif; font-size: 1rem;
+      letter-spacing: 0.1em; color: var(--ink);
+    }
+
+    .footer-links { display: flex; gap: 1.25rem; }
+    .footer-link { font-size: 0.8rem; color: var(--muted); text-decoration: none; }
+    .footer-link:hover { color: var(--ink); }
+
+    .footer-copy { font-size: 0.75rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-logo" href="/">🧲 Hook Lab</a>
+    <div class="nav-links">
+      <a class="nav-link" href="#features">Features</a>
+      <a class="nav-link" href="#how">How it works</a>
+      <a class="nav-link" href="https://kaifislam02-ops.github.io/CaptionGenerator" target="_blank">Caption Generator ↗</a>
+      <a class="nav-cta" href="/app">Try Free →</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-left">
+      <div class="hero-badge">✦ Free AI Tool for Creators</div>
+      <h1>STOP THE<br><span>SCROLL.</span></h1>
+      <p class="hero-sub">Generate 5 scroll-stopping hooks for any content topic in seconds. Built for YouTube, Instagram, LinkedIn and Twitter creators who want to grow.</p>
+      <div class="hero-btns">
+        <a class="btn-primary" href="/app">Generate Hooks Free →</a>
+        <a class="btn-secondary" href="#how">See how it works</a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="mock-card">
+        <span class="mock-tag shock">🤯 Shock</span>
+        <p class="mock-text">99% of creators post content daily and still don't grow. Here's the brutal truth about why your hooks are killing your channel.</p>
+      </div>
+      <div class="mock-card">
+        <span class="mock-tag question">❓ Question</span>
+        <p class="mock-text">What if the reason you're not going viral has nothing to do with your content quality — and everything to do with your first 3 seconds?</p>
+      </div>
+      <div class="mock-card">
+        <span class="mock-tag story">📖 Story</span>
+        <p class="mock-text">6 months ago I had 200 subscribers. I changed one thing about my videos. Last month I hit 50k. It wasn't the editing.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROOF BAR -->
+  <div class="proof">
+    <p>Works for creators on</p>
+    <div class="platforms">
+      <span class="platform-item">▶ YouTube</span>
+      <span class="platform-item">◈ Instagram</span>
+      <span class="platform-item">✦ Twitter / X</span>
+      <span class="platform-item">◉ LinkedIn</span>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="features" id="features">
+    <div class="section-label">Why Hook Lab</div>
+    <div class="section-title">EVERYTHING YOU<br>NEED TO <span>HOOK</span> THEM.</div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon">⚡</span>
+        <div class="feature-title">5 hooks in seconds</div>
+        <p class="feature-desc">Type your topic, hit generate. Get 5 completely different hook styles instantly — no waiting, no prompting.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🎯</span>
+        <div class="feature-title">Platform-aware AI</div>
+        <p class="feature-desc">Hooks written specifically for YouTube, Instagram, LinkedIn or Twitter. Different platforms need different styles.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">😂</span>
+        <div class="feature-title">Tone selector</div>
+        <p class="feature-desc">Funny, Serious, Inspirational or Educational — the same topic generates completely different hooks per tone.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🇮🇳</span>
+        <div class="feature-title">Multi-language</div>
+        <p class="feature-desc">Generate hooks in English, Hindi, Hinglish or Urdu. Built for Indian creators who speak their audience's language.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">📌</span>
+        <div class="feature-title">Save your best hooks</div>
+        <p class="feature-desc">Hit save on any hook you love. Your saved hooks are stored and accessible anytime — never lose a good line.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🔄</span>
+        <div class="feature-title">Refresh anytime</div>
+        <p class="feature-desc">Don't like the results? Hit refresh and get 5 completely new hooks for the same topic in one click.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how" id="how">
+    <div class="how-inner">
+      <div class="section-label">How it works</div>
+      <div class="section-title">THREE STEPS TO YOUR<br><span>NEXT VIRAL HOOK.</span></div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-title">Type your topic</div>
+          <p class="step-desc">Enter your video or post topic — as simple or detailed as you want. e.g. "budget travel India" or "gym for beginners".</p>
+        </div>
+        <div class="step">
+          <div class="step-title">Pick your settings</div>
+          <p class="step-desc">Choose your platform, tone and language. Hook Lab customises the AI output specifically for your audience.</p>
+        </div>
+        <div class="step">
+          <div class="step-title">Copy and post</div>
+          <p class="step-desc">Get 5 scroll-stopping hooks. Pick your favourite, copy it, and paste it as the first line of your video or caption.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOOK TYPES -->
+  <section class="hooks-section">
+    <div class="section-label">What you get</div>
+    <div class="section-title">5 HOOK <span>STYLES,</span><br>EVERY TIME.</div>
+    <div class="hooks-grid">
+      <div class="hook-type-card">
+        <span class="hook-type-tag" style="background:#e74c3c">🤯 Shock</span>
+        <div class="hook-type-name">The Shocking Fact</div>
+        <p class="hook-type-desc">A surprising statistic or truth that stops people mid-scroll and makes them question what they know.</p>
+      </div>
+      <div class="hook-type-card">
+        <span class="hook-type-tag" style="background:#2980b9">❓ Question</span>
+        <div class="hook-type-name">The Burning Question</div>
+        <p class="hook-type-desc">A thought-provoking question that viewers feel compelled to answer — making them watch till the end.</p>
+      </div>
+      <div class="hook-type-card">
+        <span class="hook-type-tag" style="background:#8e44ad">📖 Story</span>
+        <div class="hook-type-name">The Story Opener</div>
+        <p class="hook-type-desc">A first-person narrative that creates instant emotional connection and pulls viewers into your world.</p>
+      </div>
+      <div class="hook-type-card">
+        <span class="hook-type-tag" style="background:#e67e22">🎯 Bold Claim</span>
+        <div class="hook-type-name">The Bold Statement</div>
+        <p class="hook-type-desc">A confident, contrarian claim that challenges conventional wisdom and demands attention.</p>
+      </div>
+      <div class="hook-type-card">
+        <span class="hook-type-tag" style="background:#27ae60">👀 Curiosity Gap</span>
+        <div class="hook-type-name">The Curiosity Gap</div>
+        <p class="hook-type-desc">An irresistible information gap that makes viewers feel they absolutely must know what comes next.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2>READY TO STOP<br>THE SCROLL?</h2>
+    <p>Join creators who use Hook Lab to write better hooks, grow faster and post with confidence — completely free.</p>
+    <a class="btn-white" href="/app">Generate Your First Hooks →</a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">🧲 Hook Lab</div>
+    <div class="footer-links">
+      <a class="footer-link" href="/app">App</a>
+      <a class="footer-link" href="https://kaifislam02-ops.github.io/CaptionGenerator" target="_blank">Caption Generator</a>
+      <a class="footer-link" href="https://kaifislam02-ops.github.io/CaptionStudio" target="_blank">Caption Studio</a>
+    </div>
+    <div class="footer-copy">Free forever · Powered by Groq AI ⚡</div>
+  </footer>
+
+</div>
+</body>
+</html>
