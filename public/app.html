@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🧲 Hook Lab — Generate Hooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f0e8;
+      --surface: #ffffff;
+      --border: #e0d8cc;
+      --ink: #1a1208;
+      --muted: #9a9080;
+      --accent: #ff3d00;
+      --accent2: #ffb300;
+      --accent3: #00b894;
+      --shadow: 4px 4px 0px #1a1208;
+      --shadow-sm: 2px 2px 0px #1a1208;
+    }
+
+    body {
+      background: var(--bg); color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh; padding: 0 0 4rem; position: relative;
+    }
+
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle, #c8bfb0 1px, transparent 1px);
+      background-size: 24px 24px; opacity: 0.5;
+      pointer-events: none; z-index: 0;
+    }
+
+    /* NAV */
+    nav {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 0.85rem 1.5rem; border-bottom: 2px solid var(--ink);
+      background: var(--bg); position: sticky; top: 0; z-index: 100; flex-wrap: wrap;
+    }
+
+    .nav-logo {
+      background: var(--accent); color: white;
+      font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem;
+      letter-spacing: 0.1em; padding: 0.25rem 0.75rem;
+      border: 2px solid var(--ink); box-shadow: var(--shadow-sm);
+      text-decoration: none;
+    }
+
+    .nav-back {
+      font-size: 0.78rem; font-weight: 600; color: var(--muted);
+      text-decoration: none; transition: color 0.12s;
+    }
+    .nav-back:hover { color: var(--ink); }
+
+    .nav-right { margin-left: auto; display: flex; gap: 0.5rem; }
+
+    .nav-link-sm {
+      font-size: 0.75rem; font-weight: 600; color: var(--muted);
+      text-decoration: none; border: 1.5px solid var(--border);
+      padding: 0.25rem 0.65rem; border-radius: 2px; transition: all 0.12s;
+    }
+    .nav-link-sm:hover { border-color: var(--ink); color: var(--ink); }
+
+    .wrapper { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 2rem 1rem; }
+
+    /* HEADER */
+    .header { margin-bottom: 2rem; }
+
+    .logo-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+
+    .logo-badge {
+      background: var(--accent); color: white;
+      font-family: 'Bebas Neue', sans-serif; font-size: 1rem;
+      letter-spacing: 0.1em; padding: 0.25rem 0.75rem;
+      border: 2px solid var(--ink); box-shadow: var(--shadow-sm);
+    }
+
+    .logo-version {
+      font-size: 0.7rem; color: var(--muted);
+      border: 1.5px solid var(--border); padding: 0.2rem 0.5rem; border-radius: 99px;
+    }
+
+    .ai-badge {
+      font-size: 0.7rem; font-weight: 700; background: #f55036; color: white;
+      padding: 0.2rem 0.6rem; border-radius: 99px; letter-spacing: 0.05em;
+    }
+
+    .history-nav-btn {
+      margin-left: auto; background: var(--ink); border: 2px solid var(--ink);
+      color: var(--bg); font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem; font-weight: 700; padding: 0.3rem 0.85rem;
+      cursor: pointer; transition: all 0.12s; border-radius: 2px;
+    }
+    .history-nav-btn:hover { background: var(--accent); border-color: var(--accent); }
+
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 8vw, 5rem);
+      line-height: 0.95; letter-spacing: 0.02em; color: var(--ink);
+    }
+    h1 span { color: var(--accent); }
+    .header-sub { font-size: 0.92rem; color: var(--muted); margin-top: 0.5rem; line-height: 1.5; }
+
+    /* INPUT CARD */
+    .input-card {
+      background: var(--surface); border: 2px solid var(--ink);
+      box-shadow: var(--shadow); padding: 1.5rem; margin-bottom: 2rem;
+    }
+
+    .input-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 0.6rem; display: block;
+    }
+
+    .topic-input {
+      width: 100%; background: var(--bg); border: 2px solid var(--border);
+      color: var(--ink); font-family: 'DM Sans', sans-serif;
+      font-size: 1.05rem; font-weight: 500; padding: 0.85rem 1rem;
+      outline: none; transition: border-color 0.15s, box-shadow 0.15s; margin-bottom: 1rem;
+    }
+    .topic-input::placeholder { color: var(--muted); font-weight: 400; }
+    .topic-input:focus { border-color: var(--ink); box-shadow: 2px 2px 0 var(--ink); }
+
+    .pill-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+
+    .pill {
+      background: var(--bg); border: 2px solid var(--border);
+      color: var(--muted); font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem; font-weight: 700; padding: 0.35rem 0.85rem;
+      cursor: pointer; transition: all 0.12s; border-radius: 2px;
+    }
+    .pill:hover { border-color: var(--ink); color: var(--ink); }
+    .pill.active { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+
+    .lang-pill.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+    .divider { height: 1px; background: var(--border); margin: 1rem 0; }
+
+    .btn-row { display: flex; gap: 0.75rem; }
+
+    .generate-btn {
+      flex: 1; background: var(--accent); border: 2px solid var(--ink);
+      box-shadow: var(--shadow); color: white;
+      font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem;
+      letter-spacing: 0.1em; padding: 0.75rem; cursor: pointer;
+      transition: all 0.12s; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
+    .generate-btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink); }
+    .generate-btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
+    .generate-btn:disabled { background: var(--muted); cursor: not-allowed; transform: none; box-shadow: var(--shadow); }
+
+    .refresh-btn {
+      background: var(--surface); border: 2px solid var(--ink); box-shadow: var(--shadow);
+      color: var(--ink); font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem;
+      padding: 0.75rem 1.1rem; cursor: pointer; transition: all 0.12s;
+      display: none; align-items: center; justify-content: center;
+    }
+    .refresh-btn.visible { display: flex; }
+    .refresh-btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink); }
+    .refresh-btn:disabled { color: var(--muted); cursor: not-allowed; transform: none; box-shadow: var(--shadow); }
+
+    .spinning { animation: spin 0.7s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* HOOKS OUTPUT */
+    .hooks-section { display: none; flex-direction: column; gap: 1rem; }
+    .hooks-section.visible { display: flex; }
+
+    .section-label-bar {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--muted);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .section-label-bar::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .hook-card {
+      background: var(--surface); border: 2px solid var(--ink);
+      box-shadow: var(--shadow); padding: 1.2rem 1.2rem 1rem;
+      transition: transform 0.12s, box-shadow 0.12s; animation: fadeUp 0.4s ease both;
+    }
+    .hook-card:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink); }
+    .hook-card:nth-child(2) { animation-delay: 0.06s; }
+    .hook-card:nth-child(3) { animation-delay: 0.12s; }
+    .hook-card:nth-child(4) { animation-delay: 0.18s; }
+    .hook-card:nth-child(5) { animation-delay: 0.24s; }
+    .hook-card:nth-child(6) { animation-delay: 0.30s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .hook-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; gap: 0.5rem; }
+
+    .hook-type {
+      display: inline-flex; align-items: center; gap: 0.4rem; color: white;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; padding: 0.25rem 0.6rem; flex-shrink: 0;
+    }
+    .hook-type.shock     { background: #e74c3c; }
+    .hook-type.question  { background: #2980b9; }
+    .hook-type.story     { background: #8e44ad; }
+    .hook-type.bold      { background: #e67e22; }
+    .hook-type.curiosity { background: #27ae60; }
+
+    .hook-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
+
+    .save-btn, .copy-btn {
+      background: transparent; border: 1.5px solid var(--border);
+      color: var(--muted); font-family: 'DM Sans', sans-serif;
+      font-size: 0.72rem; font-weight: 700; padding: 0.25rem 0.65rem;
+      cursor: pointer; transition: all 0.12s; border-radius: 2px;
+    }
+    .copy-btn:hover { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+    .copy-btn.copied { background: var(--accent3); border-color: var(--accent3); color: white; }
+    .save-btn:hover { background: var(--accent2); border-color: var(--accent2); color: var(--ink); }
+    .save-btn.saved { background: var(--accent2); border-color: var(--accent2); color: var(--ink); }
+
+    .hook-text { font-size: 1rem; font-weight: 500; line-height: 1.6; color: var(--ink); }
+
+    /* Shimmer */
+    .shimmer {
+      background: linear-gradient(90deg, var(--border) 25%, var(--bg) 50%, var(--border) 75%);
+      background-size: 200% 100%; animation: shimmer 1s infinite;
+      height: 1em; border-radius: 2px; margin-bottom: 0.5rem;
+    }
+    @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+    .error-card {
+      background: #fff0f0; border: 2px solid #e74c3c; box-shadow: var(--shadow-sm);
+      padding: 1rem 1.2rem; font-size: 0.88rem; line-height: 1.6; color: #c0392b;
+    }
+
+    /* HISTORY PANEL */
+    .history-panel { display: none; flex-direction: column; gap: 1.25rem; }
+    .history-panel.visible { display: flex; }
+
+    .history-top { display: flex; align-items: center; justify-content: space-between; }
+    .history-title { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 0.05em; }
+
+    .back-btn {
+      background: transparent; border: 2px solid var(--ink); color: var(--ink);
+      font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 700;
+      padding: 0.4rem 0.9rem; cursor: pointer; transition: all 0.12s; border-radius: 2px;
+    }
+    .back-btn:hover { background: var(--ink); color: var(--bg); }
+
+    .history-stats { display: flex; gap: 0.75rem; }
+    .hstat {
+      flex: 1; background: var(--surface); border: 2px solid var(--ink);
+      box-shadow: var(--shadow-sm); padding: 0.8rem; text-align: center;
+    }
+    .hstat-num { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--accent); line-height: 1; }
+    .hstat-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 0.2rem; }
+
+    .history-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+    .history-empty {
+      text-align: center; padding: 2.5rem 1rem;
+      background: var(--surface); border: 2px dashed var(--border);
+      color: var(--muted); font-size: 0.88rem; line-height: 1.6;
+    }
+
+    .saved-hook-card {
+      background: var(--surface); border: 2px solid var(--ink);
+      box-shadow: var(--shadow-sm); padding: 1rem 1.1rem;
+    }
+    .saved-hook-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.6rem; }
+    .saved-hook-meta { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; flex: 1; }
+    .saved-hook-topic {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); background: var(--bg); border: 1.5px solid var(--border);
+      padding: 0.15rem 0.5rem; border-radius: 2px;
+    }
+    .saved-hook-platform { font-size: 0.68rem; font-weight: 700; color: var(--muted); }
+    .saved-hook-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
+    .copy-saved-btn, .delete-btn {
+      background: transparent; border: 1.5px solid var(--border); color: var(--muted);
+      font-family: 'DM Sans', sans-serif; font-size: 0.7rem; font-weight: 700;
+      padding: 0.2rem 0.55rem; cursor: pointer; transition: all 0.12s; border-radius: 2px;
+    }
+    .copy-saved-btn:hover { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+    .copy-saved-btn.copied { background: var(--accent3); border-color: var(--accent3); color: white; }
+    .delete-btn:hover { background: #e74c3c; border-color: #e74c3c; color: white; }
+
+    .saved-hook-type {
+      display: inline-flex; color: white; font-size: 0.6rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; padding: 0.2rem 0.5rem; margin-bottom: 0.5rem;
+    }
+    .saved-hook-type.shock     { background: #e74c3c; }
+    .saved-hook-type.question  { background: #2980b9; }
+    .saved-hook-type.story     { background: #8e44ad; }
+    .saved-hook-type.bold      { background: #e67e22; }
+    .saved-hook-type.curiosity { background: #27ae60; }
+    .saved-hook-text { font-size: 0.95rem; font-weight: 500; line-height: 1.55; color: var(--ink); }
+
+    .clear-history-btn {
+      background: transparent; border: 2px solid var(--border); color: var(--muted);
+      font-family: 'DM Sans', sans-serif; font-size: 0.75rem; font-weight: 700;
+      padding: 0.5rem 1rem; cursor: pointer; transition: all 0.12s; align-self: center; border-radius: 2px;
+    }
+    .clear-history-btn:hover { border-color: #e74c3c; color: #e74c3c; }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+    .shake { animation: shake 0.3s ease; }
+
+    .footer { text-align: center; margin-top: 3rem; font-size: 0.72rem; color: var(--muted); }
+    .footer a { color: var(--muted); text-decoration: none; }
+    .footer a:hover { color: var(--ink); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">🧲 Hook Lab</a>
+  <a class="nav-back" href="/">← Back to home</a>
+  <div class="nav-right">
+    <a class="nav-link-sm" href="https://kaifislam02-ops.github.io/CaptionGenerator" target="_blank">🎬 Caption Generator</a>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-badge">🧲 Hook Lab</div>
+      <div class="logo-version">v1.0</div>
+      <div class="ai-badge">⚡ Groq AI</div>
+      <button class="history-nav-btn" id="history-nav-btn">📌 Saved</button>
+    </div>
+    <h1>STOP THE<br><span>SCROLL.</span></h1>
+    <p class="header-sub">Enter your topic, pick your tone and language — get 5 AI hooks instantly.</p>
+  </div>
+
+  <!-- MAIN VIEW -->
+  <div id="main-view">
+    <div class="input-card">
+      <label class="input-label" for="topic-input">Your content topic</label>
+      <input type="text" id="topic-input" class="topic-input"
+        placeholder="e.g. waking up at 5am, budget travel India, gym for beginners…"
+        maxlength="150"/>
+
+      <label class="input-label">Platform</label>
+      <div class="pill-row" id="platform-row">
+        <button class="pill active" data-val="YouTube">▶ YouTube</button>
+        <button class="pill" data-val="Instagram">◈ Instagram</button>
+        <button class="pill" data-val="Twitter / X">✦ Twitter / X</button>
+        <button class="pill" data-val="LinkedIn">◉ LinkedIn</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <label class="input-label">Tone</label>
+      <div class="pill-row" id="tone-row">
+        <button class="pill active" data-val="Funny">😂 Funny</button>
+        <button class="pill" data-val="Serious">🎯 Serious</button>
+        <button class="pill" data-val="Inspirational">🔥 Inspirational</button>
+        <button class="pill" data-val="Educational">🧠 Educational</button>
+      </div>
+
+      <label class="input-label">Language</label>
+      <div class="pill-row" id="lang-row">
+        <button class="pill lang-pill active" data-val="English">🇬🇧 English</button>
+        <button class="pill lang-pill" data-val="Hindi">🇮🇳 Hindi</button>
+        <button class="pill lang-pill" data-val="Hinglish">🤝 Hinglish</button>
+        <button class="pill lang-pill" data-val="Urdu">🌙 Urdu</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="btn-row">
+        <button class="generate-btn" id="generate-btn">🧲 GENERATE HOOKS</button>
+        <button class="refresh-btn" id="refresh-btn">↻</button>
+      </div>
+    </div>
+
+    <div class="hooks-section" id="hooks-section">
+      <div class="section-label-bar" id="section-label">5 AI hooks — powered by Groq ⚡</div>
+      <div id="hooks-container"></div>
+    </div>
+  </div>
+
+  <!-- HISTORY PANEL -->
+  <div class="history-panel" id="history-panel">
+    <div class="history-top">
+      <div class="history-title">📌 Saved Hooks</div>
+      <button class="back-btn" id="back-btn">← Back</button>
+    </div>
+    <div class="history-stats">
+      <div class="hstat"><div class="hstat-num" id="hstat-total">0</div><div class="hstat-label">Saved</div></div>
+      <div class="hstat"><div class="hstat-num" id="hstat-topics">0</div><div class="hstat-label">Topics</div></div>
+      <div class="hstat"><div class="hstat-num" id="hstat-platforms">0</div><div class="hstat-label">Platforms</div></div>
+    </div>
+    <div class="history-list" id="history-list"></div>
+    <button class="clear-history-btn" id="clear-history-btn">🗑 Clear all</button>
+  </div>
+
+  <div class="footer">
+    Hook Lab v1.0 · <a href="/">hooklab.vercel.app</a> · Free forever 🔥
+  </div>
+</div>
+
+<script>
+  const HOOK_TYPES = [
+    { key: 'shock',     label: '🤯 Shock',        cls: 'shock'     },
+    { key: 'question',  label: '❓ Question',      cls: 'question'  },
+    { key: 'story',     label: '📖 Story',         cls: 'story'     },
+    { key: 'bold',      label: '🎯 Bold Claim',    cls: 'bold'      },
+    { key: 'curiosity', label: '👀 Curiosity Gap', cls: 'curiosity' },
+  ];
+
+  let selectedPlatform = 'YouTube';
+  let selectedTone     = 'Funny';
+  let selectedLang     = 'English';
+  let lastTopic        = '';
+  let isGenerating     = false;
+
+  // Pill selectors
+  function setupPills(rowId, cb) {
+    document.querySelectorAll(`#${rowId} .pill`).forEach(p => {
+      p.addEventListener('click', () => {
+        document.querySelectorAll(`#${rowId} .pill`).forEach(x => x.classList.remove('active'));
+        p.classList.add('active'); cb(p.dataset.val);
+      });
+    });
+  }
+
+  setupPills('platform-row', v => selectedPlatform = v);
+  setupPills('tone-row',     v => selectedTone     = v);
+  setupPills('lang-row',     v => selectedLang     = v);
+
+  // Storage
+  function getSaved() {
+    try { return JSON.parse(localStorage.getItem('hooklab_saved') || '[]'); } catch { return []; }
+  }
+
+  function saveHook(hook) {
+    const saved = getSaved();
+    if (saved.find(h => h.text === hook.text)) return false;
+    saved.unshift(hook);
+    localStorage.setItem('hooklab_saved', JSON.stringify(saved));
+    return true;
+  }
+
+  function deleteHook(id) {
+    localStorage.setItem('hooklab_saved', JSON.stringify(getSaved().filter(h => h.id !== id)));
+  }
+
+  // Navigation
+  const mainView     = document.getElementById('main-view');
+  const historyPanel = document.getElementById('history-panel');
+
+  document.getElementById('history-nav-btn').addEventListener('click', () => {
+    renderHistory(); mainView.style.display = 'none'; historyPanel.classList.add('visible');
+  });
+  document.getElementById('back-btn').addEventListener('click', () => {
+    historyPanel.classList.remove('visible'); mainView.style.display = 'block';
+  });
+
+  // Generate
+  const generateBtn    = document.getElementById('generate-btn');
+  const refreshBtn     = document.getElementById('refresh-btn');
+  const topicInput     = document.getElementById('topic-input');
+  const hooksSection   = document.getElementById('hooks-section');
+  const hooksContainer = document.getElementById('hooks-container');
+
+  generateBtn.addEventListener('click', () => generateHooks(false));
+  refreshBtn.addEventListener('click',  () => generateHooks(true));
+  topicInput.addEventListener('keydown', e => { if (e.key === 'Enter') generateHooks(false); });
+
+  async function generateHooks(isRefresh) {
+    const topic = isRefresh ? lastTopic : topicInput.value.trim();
+    if (!topic) {
+      topicInput.classList.add('shake');
+      topicInput.focus();
+      setTimeout(() => topicInput.classList.remove('shake'), 400);
+      return;
+    }
+
+    if (isGenerating) return;
+    isGenerating = true;
+    lastTopic = topic;
+
+    generateBtn.disabled = true;
+    refreshBtn.disabled  = true;
+
+    if (isRefresh) refreshBtn.innerHTML = '<span class="spinning">↻</span>';
+    else generateBtn.innerHTML = '⚡ GENERATING...';
+
+    hooksSection.classList.add('visible');
+    hooksContainer.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        ${[1,2,3,4,5].map(() => `
+          <div style="background:white;border:2px solid #1a1208;padding:1.2rem;box-shadow:4px 4px 0 #1a1208;">
+            <div class="shimmer" style="width:28%;margin-bottom:0.75rem;"></div>
+            <div class="shimmer" style="width:100%;"></div>
+            <div class="shimmer" style="width:70%;"></div>
+          </div>`).join('')}
+      </div>`;
+
+    try {
+      // Call our own serverless API — no API key needed by user!
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          topic,
+          platform: selectedPlatform,
+          tone:     selectedTone,
+          language: selectedLang,
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Something went wrong');
+
+      const { hooks } = data;
+
+      document.getElementById('section-label').textContent =
+        `5 ${selectedTone.toLowerCase()} ${selectedLang} hooks · ${selectedPlatform} ⚡`;
+
+      renderHooks(hooks, topic);
+      refreshBtn.classList.add('visible');
+
+    } catch (err) {
+      hooksContainer.innerHTML = `
+        <div class="error-card">
+          ⚠️ <strong>Something went wrong:</strong><br>${err.message}
+        </div>`;
+    } finally {
+      isGenerating = false;
+      generateBtn.disabled = false;
+      refreshBtn.disabled  = false;
+      generateBtn.innerHTML = '🧲 GENERATE HOOKS';
+      refreshBtn.innerHTML  = '↻';
+    }
+  }
+
+  function renderHooks(hooks, topic) {
+    hooksContainer.innerHTML = '';
+    const frag = document.createDocumentFragment();
+
+    HOOK_TYPES.forEach((type, i) => {
+      const text = hooks[type.key] || '(Could not generate — try again)';
+      const card = document.createElement('div');
+      card.className = 'hook-card';
+      card.style.animationDelay = `${i * 0.08}s`;
+      card.innerHTML = `
+        <div class="hook-top">
+          <span class="hook-type ${type.cls}">${type.label}</span>
+          <div class="hook-actions">
+            <button class="save-btn">📌 Save</button>
+            <button class="copy-btn">Copy</button>
+          </div>
+        </div>
+        <div class="hook-text">${text}</div>
+      `;
+
+      card.querySelector('.save-btn').addEventListener('click', function() {
+        const ok = saveHook({
+          id: Date.now() + Math.random(), text,
+          type: type.key, typeLabel: type.label, typeCls: type.cls,
+          topic, platform: selectedPlatform, tone: selectedTone, lang: selectedLang,
+          savedAt: Date.now()
+        });
+        this.textContent = ok ? '✅ Saved!' : 'Already saved';
+        if (ok) this.classList.add('saved');
+        setTimeout(() => { this.textContent = '📌 Save'; this.classList.remove('saved'); }, 2000);
+      });
+
+      card.querySelector('.copy-btn').addEventListener('click', function() {
+        navigator.clipboard.writeText(text).then(() => {
+          this.textContent = '✓ Copied!'; this.classList.add('copied');
+          setTimeout(() => { this.textContent = 'Copy'; this.classList.remove('copied'); }, 2000);
+        });
+      });
+
+      frag.appendChild(card);
+    });
+
+    hooksContainer.appendChild(frag);
+  }
+
+  function renderHistory() {
+    const saved     = getSaved();
+    const topics    = new Set(saved.map(h => h.topic)).size;
+    const platforms = new Set(saved.map(h => h.platform)).size;
+
+    document.getElementById('hstat-total').textContent     = saved.length;
+    document.getElementById('hstat-topics').textContent    = topics;
+    document.getElementById('hstat-platforms').textContent = platforms;
+
+    const list = document.getElementById('history-list');
+
+    if (!saved.length) {
+      list.innerHTML = `<div class="history-empty">No saved hooks yet!<br>Generate some hooks and hit <strong>📌 Save</strong>.</div>`;
+      return;
+    }
+
+    list.innerHTML = '';
+    const frag = document.createDocumentFragment();
+
+    saved.forEach(h => {
+      const card = document.createElement('div');
+      card.className = 'saved-hook-card';
+      const dateStr = new Date(h.savedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+      const langFlag = { English:'🇬🇧', Hindi:'🇮🇳', Hinglish:'🤝', Urdu:'🌙' }[h.lang] || '';
+
+      card.innerHTML = `
+        <div class="saved-hook-top">
+          <div class="saved-hook-meta">
+            <span class="saved-hook-topic">${h.topic}</span>
+            <span class="saved-hook-platform">${h.platform} · ${h.tone} · ${langFlag} · ${dateStr}</span>
+          </div>
+          <div class="saved-hook-actions">
+            <button class="copy-saved-btn">Copy</button>
+            <button class="delete-btn">✕</button>
+          </div>
+        </div>
+        <div class="saved-hook-type ${h.typeCls}">${h.typeLabel}</div>
+        <div class="saved-hook-text">${h.text}</div>
+      `;
+
+      card.querySelector('.copy-saved-btn').addEventListener('click', function() {
+        navigator.clipboard.writeText(h.text).then(() => {
+          this.textContent = '✓ Copied!'; this.classList.add('copied');
+          setTimeout(() => { this.textContent = 'Copy'; this.classList.remove('copied'); }, 2000);
+        });
+      });
+
+      card.querySelector('.delete-btn').addEventListener('click', () => {
+        deleteHook(h.id);
+        card.style.opacity = '0'; card.style.transform = 'scale(0.95)';
+        card.style.transition = 'all 0.2s ease';
+        setTimeout(() => { card.remove(); renderHistory(); }, 200);
+      });
+
+      frag.appendChild(card);
+    });
+
+    list.appendChild(frag);
+  }
+
+  document.getElementById('clear-history-btn').addEventListener('click', () => {
+    if (confirm('Clear all saved hooks?')) {
+      localStorage.removeItem('hooklab_saved'); renderHistory();
+    }
+  });
+</script>
+</body>
+</html>
